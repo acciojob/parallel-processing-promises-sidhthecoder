@@ -6,33 +6,27 @@ const images = [
   { url: 'https://picsum.photos/200/300/?blur' },
   { url: 'https://picsum.photos/200/300?random=1' }
 ];
-// Function to download the images and show them on the webpage
-function downloadAndShowImages() {
-  const promises = images.map(image => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        resolve(img);
-      };
-      img.onerror = () => {
-        reject(new Error(`Failed to load image's URL: ${image.url}`));
-      };
-      img.src = image.url;
-    });
-  });
 
-  Promise.all(promises)
-    .then(images => {
-      const outputDiv = document.getElementById('output');
-      images.forEach(img => {
-        outputDiv.appendChild(img);
+const downloadImages = () => {
+   const promises = [];
+
+   images.forEach((image) => {
+      const promise = new Promise((resolve, reject) => {
+         const img = new Image();
+         img.onload = () => resolve(img);
+         img.onerror = () => reject(new Error(`Failed to load image's URL: ${image.url}`));
+         img.src = image.url;
       });
-    })
-    .catch(error => {
-      console.error(error);
-    });
-}
+      promises.push(promise);
+   });
 
-// Attach the downloadAndShowImages() function to the button click event
-const downloadButton = document.getElementById('download-images-button');
-downloadButton.addEventListener('click', downloadAndShowImages);
+   Promise.all(promises)
+      .then((images) => {
+         const output = document.getElementById("output");
+         images.forEach((img) => output.appendChild(img));
+      })
+      .catch((error) => console.log(error));
+};
+
+const downloadImagesButton = document.getElementById("download-images-button");
+downloadImagesButton.addEventListener("click", downloadImages);
