@@ -1,32 +1,48 @@
-//your JS code here. If required.
 const images = [
-  { url: 'https://picsum.photos/200/300' },
-  { url: 'https://picsum.photos/seed/picsum/200/300' },
-  { url: 'https://picsum.photos/200/300?grayscale' },
-  { url: 'https://picsum.photos/200/300/?blur' },
-  { url: 'https://picsum.photos/200/300?random=1' }
+  {
+    url: "https://picsum.photos/id/237/200/300",
+    alt: "Image 1",
+  },
+  {
+    url: "https://picsum.photos/id/238/200/300",
+    alt: "Image 2",
+  },
+  {
+    url: "https://picsum.photos/id/239/200/300",
+    alt: "Image 3",
+  }
+  
 ];
 
-const downloadImages = () => {
-   const promises = [];
+function downloadImages(images) {
+  const promises = images.map(image => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = image.url;
+      img.alt = image.alt;
+      img.onload = () => {
+        resolve(img);
+      };
+      img.onerror = () => {
+        reject(`Failed to load image's URL: ${image.url}`);
+      };
+    });
+  });
 
-   images.forEach((image) => {
-      const promise = new Promise((resolve, reject) => {
-         const img = new Image();
-         img.onload = () => resolve(img);
-         img.onerror = () => reject(new Error(`Failed to load image's URL: ${image.url}`));
-         img.src = image.url;
+  Promise.all(promises)
+    .then(imgs => {
+      const output = document.getElementById('output');
+		output.innerHTML = null;
+      imgs.forEach(img => {
+        output.appendChild(img);
       });
-      promises.push(promise);
-   });
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
 
-   Promise.all(promises)
-      .then((images) => {
-         const output = document.getElementById("output");
-         images.forEach((img) => output.appendChild(img));
-      })
-      .catch((error) => console.log(error));
-};
-
-const downloadImagesButton = document.getElementById("download-images-button");
-downloadImagesButton.addEventListener("click", downloadImages);
+const button = document.getElementById('download-images-button');
+button.addEventListener('click', () => {
+  downloadImages(images);
+});
